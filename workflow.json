@@ -1,0 +1,79 @@
+{
+  "StartAt": "FindFace",
+  "States": {
+    "FindFace": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-west-1:*:function:aws-detect-faces-dev-handlePost",
+      "Parameters": {
+        "s3Url.$": "$.s3Url"
+      },
+      "ResultPath": "$.findFaceResult",
+      "Next": "NotifyFindFace",
+      "Catch": [
+        {
+          "ErrorEquals": ["Lambda.Unknown", "States.TaskFailed"],
+          "ResultPath": "$.findFaceError",
+          "Next": "NotifyFindFaceFailed"
+        },
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.findFaceError",
+          "Next": "NotifyFindFaceFailed"
+        }
+      ]
+    },
+    "NotifyFindFaceFailed": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-west-1:*:function:aws-messaging-dev-handlePost",
+      "Parameters": {
+        "event": "message",
+        "userId.$": "$.userId",
+        "fields": {
+          "code": "rekognition-failed",
+          "message": "Find face failed"
+        }
+      },
+      "ResultPath": "$.notifyFindFaceFailedResult",
+      "End": true
+    },
+    "NotifyFindFace": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-west-1:*:function:aws-messaging-dev-handlePost",
+      "Parameters": {
+        "event": "message",
+        "userId.$": "$.userId",
+        "fields": {
+          "code": "rekognition",
+          "message": "Find face done"
+        }
+      },
+      "ResultPath": "$.notifyFindFaceResult",
+      "Next": "Resize"
+    },
+    "Resize": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-west-1:*:function:aws-resize-dev-handlePost",
+      "Parameters": {
+        "s3Url.$": "$.s3Url",
+        "faceRect.$": "$.findFaceResult.faceRect"
+      },
+      "ResultPath": "$.thumbnailInfo",
+      "Next": "NotifyResize"
+    },
+    "NotifyResize": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-west-1:*:function:aws-messaging-dev-handlePost",
+      "Parameters": {
+        "event": "message",
+        "userId.$": "$.userId",
+        "fields": {
+          "message": "Resize done",
+          "code": "resize",
+          "thumbnailUrl.$": "$.thumbnailInfo.dstS3Url"
+        }
+      },
+      "ResultPath": "$.notifyResizeResult",
+      "End": true
+    }
+  }
+}
