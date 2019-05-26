@@ -3,7 +3,8 @@
   "States": {
     "FindFace": {
       "Type": "Task",
-      "Resource": "arn:aws:lambda:eu-west-1:*:function:aws-detect-faces-dev-handlePost",
+      "Comment": "Invoke AWS Rekognition to detect face and expressions",
+      "Resource": "arn:aws:lambda:eu-west-1:849707207653:function:aws-detect-faces-dev-handlePost",
       "Parameters": {
         "s3Url.$": "$.s3Url"
       },
@@ -11,12 +12,17 @@
       "Next": "NotifyFindFace",
       "Catch": [
         {
-          "ErrorEquals": ["Lambda.Unknown", "States.TaskFailed"],
+          "ErrorEquals": [
+            "Lambda.Unknown",
+            "States.TaskFailed"
+          ],
           "ResultPath": "$.findFaceError",
           "Next": "NotifyFindFaceFailed"
         },
         {
-          "ErrorEquals": ["States.ALL"],
+          "ErrorEquals": [
+            "States.ALL"
+          ],
           "ResultPath": "$.findFaceError",
           "Next": "NotifyFindFaceFailed"
         }
@@ -24,7 +30,7 @@
     },
     "NotifyFindFaceFailed": {
       "Type": "Task",
-      "Resource": "arn:aws:lambda:eu-west-1:*:function:aws-messaging-dev-handlePost",
+      "Resource": "arn:aws:lambda:eu-west-1:849707207653:function:aws-messaging-dev-handlePost",
       "Parameters": {
         "event": "message",
         "userId.$": "$.userId",
@@ -38,7 +44,7 @@
     },
     "NotifyFindFace": {
       "Type": "Task",
-      "Resource": "arn:aws:lambda:eu-west-1:*:function:aws-messaging-dev-handlePost",
+      "Resource": "arn:aws:lambda:eu-west-1:849707207653:function:aws-messaging-dev-handlePost",
       "Parameters": {
         "event": "message",
         "userId.$": "$.userId",
@@ -52,7 +58,7 @@
     },
     "Resize": {
       "Type": "Task",
-      "Resource": "arn:aws:lambda:eu-west-1:*:function:aws-resize-dev-handlePost",
+      "Resource": "arn:aws:lambda:eu-west-1:849707207653:function:aws-resize-dev-handlePost",
       "Parameters": {
         "s3Url.$": "$.s3Url",
         "faceRect.$": "$.findFaceResult.faceRect"
@@ -62,7 +68,7 @@
     },
     "NotifyResize": {
       "Type": "Task",
-      "Resource": "arn:aws:lambda:eu-west-1:*:function:aws-messaging-dev-handlePost",
+      "Resource": "arn:aws:lambda:eu-west-1:849707207653:function:aws-messaging-dev-handlePost",
       "Parameters": {
         "event": "message",
         "userId.$": "$.userId",

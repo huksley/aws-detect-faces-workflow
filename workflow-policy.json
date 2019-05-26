@@ -1,0 +1,17 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "workflowPolicyGenerated0",
+      "Effect": "Allow",
+      "Action": "lambda:InvokeFunction",
+      "Resource": [
+        "arn:aws:lambda:eu-west-1:849707207653:function:aws-detect-faces-dev-handlePost",
+        "arn:aws:lambda:eu-west-1:849707207653:function:aws-messaging-dev-handlePost",
+        "arn:aws:lambda:eu-west-1:849707207653:function:aws-messaging-dev-handlePost",
+        "arn:aws:lambda:eu-west-1:849707207653:function:aws-resize-dev-handlePost",
+        "arn:aws:lambda:eu-west-1:849707207653:function:aws-messaging-dev-handlePost"
+      ]
+    }
+  ]
+}
