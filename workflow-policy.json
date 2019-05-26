@@ -10,6 +10,7 @@
         "arn:aws:lambda:eu-west-1:849707207653:function:aws-messaging-dev-handlePost",
         "arn:aws:lambda:eu-west-1:849707207653:function:aws-messaging-dev-handlePost",
         "arn:aws:lambda:eu-west-1:849707207653:function:aws-resize-dev-handlePost",
+        "arn:aws:lambda:eu-west-1:849707207653:function:aws-messaging-dev-handlePost",
         "arn:aws:lambda:eu-west-1:849707207653:function:aws-messaging-dev-handlePost"
       ]
     }

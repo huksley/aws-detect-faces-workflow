@@ -50,7 +50,8 @@
         "userId.$": "$.userId",
         "fields": {
           "code": "rekognition",
-          "message": "Find face done"
+          "message": "Find face done",
+          "faces.$": "$.findFaceResult"
         }
       },
       "ResultPath": "$.notifyFindFaceResult",
@@ -64,7 +65,24 @@
         "faceRect.$": "$.findFaceResult.faceRect"
       },
       "ResultPath": "$.thumbnailInfo",
-      "Next": "NotifyResize"
+      "Next": "NotifyResize",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "Lambda.Unknown",
+            "States.TaskFailed"
+          ],
+          "ResultPath": "$.resizeError",
+          "Next": "NotifyResizeFailed"
+        },
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.resizeError",
+          "Next": "NotifyResizeFailed"
+        }
+      ]
     },
     "NotifyResize": {
       "Type": "Task",
@@ -79,6 +97,20 @@
         }
       },
       "ResultPath": "$.notifyResizeResult",
+      "End": true
+    },
+    "NotifyResizeFailed": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-west-1:849707207653:function:aws-messaging-dev-handlePost",
+      "Parameters": {
+        "event": "message",
+        "userId.$": "$.userId",
+        "fields": {
+          "code": "resize-failed",
+          "message": "Resize failed"
+        }
+      },
+      "ResultPath": "$.notifyResizeFailedResult",
       "End": true
     }
   }
