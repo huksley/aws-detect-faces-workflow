@@ -65,7 +65,7 @@
         "faceRect.$": "$.findFaceResult.faceRect"
       },
       "ResultPath": "$.thumbnailInfo",
-      "Next": "NotifyResize",
+      "Next": "UpdateItem",
       "Catch": [
         {
           "ErrorEquals": [
@@ -83,6 +83,26 @@
           "Next": "NotifyResizeFailed"
         }
       ]
+    },
+    "UpdateItem": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:updateItem",
+      "Parameters": {
+        "TableName": "find-face-sessions",
+        "UpdateExpression": "SET thumbnailUrl = :ThumbnailUrlRef",
+        "ExpressionAttributeValues": {
+          ":ThumbnailUrlRef": {
+            "S.$": "$.thumbnailInfo.dstS3Url"
+          }
+        },
+        "Key": {
+          "id": {
+            "S.$": "$.userId"
+          }
+        }
+      },
+      "ResultPath": "$.updateItemResult",
+      "Next": "NotifyResize"
     },
     "NotifyResize": {
       "Type": "Task",
