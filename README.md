@@ -1,13 +1,13 @@
 # Detect faces workflow
 
 AWS Step Functions workflow for invoking AWS Lambdas to detect face and smile using uploaded images.
+Activated using [S3 Listener](https://github.com/huksley/aws-s3-listener/) when profile image gets uploaded to S3
 
-Activated using S3 Listener when profile image gets uploaded to S3
+[![Sponsored](https://img.shields.io/badge/chilicorn-sponsored-brightgreen.svg)](http://spiceprogram.org/oss-sponsorship/)
 
 ## Workflow
 
 ![Workflow](workflow.png)
-
 
 ## Architecture
 
