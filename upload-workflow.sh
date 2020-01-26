@@ -6,7 +6,7 @@ command -v aws >/dev/null 2>&1 || { echo >&2 "aws cli not installed https://docs
 
 # FIXME: Check credentials
 
-WORKFLOW_NAME=new-profile-pic
+WORKFLOW_NAME=new-profile-pic-express
 
 ARN=`aws stepfunctions list-state-machines | jq -r ".stateMachines[] | select(.name == \"${WORKFLOW_NAME}\") | .stateMachineArn"`
 
