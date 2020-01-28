@@ -51,7 +51,8 @@
         "fields": {
           "code": "rekognition",
           "message": "Find face done",
-          "faces.$": "$.findFaceResult"
+          "faces.$": "$.findFaceResult",
+          "s3Url.$": "$.s3Url"
         }
       },
       "ResultPath": "$.notifyFindFaceResult",
