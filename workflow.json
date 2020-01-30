@@ -118,22 +118,6 @@
         }
       },
       "ResultPath": "$.notifyResizeResult",
-      "Next": "NotifyFollowers"
-    },
-    "NotifyFollowers": {
-      "Type": "Task",
-      "Resource": "arn:aws:lambda:eu-west-1:849707207653:function:aws-messaging-dev-handlePost",
-      "Parameters": {
-        "event": "topic",
-        "topic": "profile-update",
-        "fields": {
-          "message": "User have new pic",
-          "code": "user-pic",
-          "userId.$": "$.userId",
-          "thumbnailUrl.$": "$.thumbnailInfo.dstS3Url"
-        }
-      },
-      "ResultPath": "$.notifyResizeResult",
       "End": true
     },
     "NotifyResizeFailed": {

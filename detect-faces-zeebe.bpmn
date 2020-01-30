@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" id="Definitions_1hrz2x8" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Zeebe Modeler" exporterVersion="0.8.0">
+  <bpmn:process id="Process_1j8gwvl" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_0ko2ky8" name="Photo uploaded">
+      <bpmn:outgoing>SequenceFlow_1acylvz</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1acylvz" sourceRef="StartEvent_0ko2ky8" targetRef="Task_1tnsqox" />
+    <bpmn:serviceTask id="Task_1tnsqox" name="Detect faces">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="CAMUNDA-HTTP" retries="5" />
+        <zeebe:taskHeaders>
+          <zeebe:header key="url" value="${baseUrl}?do=detect2" />
+          <zeebe:header key="method" value="post" />
+        </zeebe:taskHeaders>
+        <zeebe:ioMapping>
+          <zeebe:input source="name" target="body.name" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1acylvz</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0fnp9ux</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0i7yiub" sourceRef="Task_0z53olp" targetRef="Task_05xzufw" />
+    <bpmn:sequenceFlow id="SequenceFlow_0g6ndsz" sourceRef="Task_05xzufw" targetRef="Task_0hezc8b" />
+    <bpmn:serviceTask id="Task_05xzufw" name="Resize to thumbnail">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="CAMUNDA-HTTP" retries="1" />
+        <zeebe:taskHeaders>
+          <zeebe:header key="url" value="${baseUrl}?do=resize" />
+          <zeebe:header key="method" value="post" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0i7yiub</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0g6ndsz</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0gmcij8" sourceRef="Task_0hezc8b" targetRef="Task_1be0guy" />
+    <bpmn:endEvent id="EndEvent_10zi207" name="Thumbnail done">
+      <bpmn:incoming>SequenceFlow_0q5dry8</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0q5dry8" sourceRef="Task_1be0guy" targetRef="EndEvent_10zi207" />
+    <bpmn:sequenceFlow id="SequenceFlow_00g4btb" sourceRef="IntermediateThrowEvent_1uvxns4" targetRef="Task_16mq010" />
+    <bpmn:boundaryEvent id="IntermediateThrowEvent_1uvxns4" attachedToRef="Task_1tnsqox">
+      <bpmn:outgoing>SequenceFlow_00g4btb</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_13mgmyc" errorRef="Error_14ofsqe" />
+    </bpmn:boundaryEvent>
+    <bpmn:serviceTask id="Task_16mq010" name="Notify find face failed">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="CAMUNDA-HTTP" retries="1" />
+        <zeebe:taskHeaders>
+          <zeebe:header key="url" value="${baseUrl}?do=notify-detect-failed" />
+          <zeebe:header key="method" value="post" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_00g4btb</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_018c3bg</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_018c3bg" sourceRef="Task_16mq010" targetRef="EndEvent_19myzox" />
+    <bpmn:sequenceFlow id="SequenceFlow_0fnp9ux" sourceRef="Task_1tnsqox" targetRef="Task_0z53olp" />
+    <bpmn:sequenceFlow id="SequenceFlow_0d4cvyx" sourceRef="IntermediateThrowEvent_14k3r67" targetRef="Task_05232ik" />
+    <bpmn:sequenceFlow id="SequenceFlow_0myfq5k" sourceRef="Task_05232ik" targetRef="EndEvent_0zojpol" />
+    <bpmn:serviceTask id="Task_0z53olp" name="Notify found face and smile">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="CAMUNDA-HTTP" retries="1" />
+        <zeebe:taskHeaders>
+          <zeebe:header key="url" value="${baseUrl}?do=notify-found" />
+          <zeebe:header key="method" value="post" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0fnp9ux</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0i7yiub</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_0hezc8b" name="Update app">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="CAMUNDA-HTTP" retries="1" />
+        <zeebe:taskHeaders>
+          <zeebe:header key="url" value="${baseUrl}?do=update-app" />
+          <zeebe:header key="method" value="post" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0g6ndsz</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0gmcij8</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_05232ik" name="Notify resize failed">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="CAMUNDA-HTTP" retries="1" />
+        <zeebe:taskHeaders>
+          <zeebe:header key="url" value="${baseUrl}?do=notify-resize-failed" />
+          <zeebe:header key="method" value="post" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0d4cvyx</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0myfq5k</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_1be0guy" name="Notify followers">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="CAMUNDA-HTTP" retries="1" />
+        <zeebe:taskHeaders>
+          <zeebe:header key="url" value="${baseUrl}?do=notify-followers" />
+          <zeebe:header key="method" value="post" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0gmcij8</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0q5dry8</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:boundaryEvent id="IntermediateThrowEvent_14k3r67" attachedToRef="Task_05xzufw">
+      <bpmn:outgoing>SequenceFlow_0d4cvyx</bpmn:outgoing>
+      <bpmn:errorEventDefinition errorRef="Error_14ofsqe" />
+    </bpmn:boundaryEvent>
+    <bpmn:endEvent id="EndEvent_19myzox" name="Failed">
+      <bpmn:incoming>SequenceFlow_018c3bg</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="EndEvent_0zojpol" name="Failed">
+      <bpmn:incoming>SequenceFlow_0myfq5k</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmn:error id="Error_14ofsqe" name="Error_1u531v0" errorCode="5001" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1j8gwvl">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_0ko2ky8">
+        <dc:Bounds x="202" y="81" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="182" y="124" width="78" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1acylvz_di" bpmnElement="SequenceFlow_1acylvz">
+        <di:waypoint x="238" y="99" />
+        <di:waypoint x="280" y="99" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_0ax0jk4_di" bpmnElement="Task_1tnsqox">
+        <dc:Bounds x="280" y="59" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0i7yiub_di" bpmnElement="SequenceFlow_0i7yiub">
+        <di:waypoint x="630" y="99" />
+        <di:waypoint x="680" y="99" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0g6ndsz_di" bpmnElement="SequenceFlow_0g6ndsz">
+        <di:waypoint x="780" y="99" />
+        <di:waypoint x="840" y="99" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_1a6k954_di" bpmnElement="Task_05xzufw">
+        <dc:Bounds x="680" y="59" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0gmcij8_di" bpmnElement="SequenceFlow_0gmcij8">
+        <di:waypoint x="940" y="99" />
+        <di:waypoint x="1010" y="99" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_10zi207_di" bpmnElement="EndEvent_10zi207">
+        <dc:Bounds x="1182" y="81" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1161" y="124" width="79" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0q5dry8_di" bpmnElement="SequenceFlow_0q5dry8">
+        <di:waypoint x="1110" y="99" />
+        <di:waypoint x="1182" y="99" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_00g4btb_di" bpmnElement="SequenceFlow_00g4btb">
+        <di:waypoint x="320" y="157" />
+        <di:waypoint x="320" y="260" />
+        <di:waypoint x="530" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="BoundaryEvent_01ixpqw_di" bpmnElement="IntermediateThrowEvent_1uvxns4">
+        <dc:Bounds x="302" y="121" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_0dmsw5e_di" bpmnElement="Task_16mq010">
+        <dc:Bounds x="530" y="220" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_018c3bg_di" bpmnElement="SequenceFlow_018c3bg">
+        <di:waypoint x="630" y="260" />
+        <di:waypoint x="1182" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0fnp9ux_di" bpmnElement="SequenceFlow_0fnp9ux">
+        <di:waypoint x="380" y="99" />
+        <di:waypoint x="530" y="99" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0d4cvyx_di" bpmnElement="SequenceFlow_0d4cvyx">
+        <di:waypoint x="730" y="157" />
+        <di:waypoint x="730" y="190" />
+        <di:waypoint x="760" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0myfq5k_di" bpmnElement="SequenceFlow_0myfq5k">
+        <di:waypoint x="860" y="190" />
+        <di:waypoint x="1182" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_13eint7_di" bpmnElement="Task_0z53olp">
+        <dc:Bounds x="530" y="59" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_0moy6it_di" bpmnElement="Task_0hezc8b">
+        <dc:Bounds x="840" y="59" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_0qcnor8_di" bpmnElement="Task_05232ik">
+        <dc:Bounds x="760" y="150" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_11dy5w0_di" bpmnElement="Task_1be0guy">
+        <dc:Bounds x="1010" y="59" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BoundaryEvent_1vok6o1_di" bpmnElement="IntermediateThrowEvent_14k3r67">
+        <dc:Bounds x="712" y="121" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0dnp5mi_di" bpmnElement="EndEvent_19myzox">
+        <dc:Bounds x="1182" y="242" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1185" y="285" width="30" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1l5t7pi_di" bpmnElement="EndEvent_0zojpol">
+        <dc:Bounds x="1182" y="172" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1185" y="215" width="30" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
